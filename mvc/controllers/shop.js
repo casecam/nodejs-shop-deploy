@@ -1,17 +1,29 @@
-const Product = require('../models/product');
+const Product = require('../models/Product');
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll(products => {
+  Product.fetchAll((products) => {
     res.render('shop/product-list', {
       prods: products,
       pageTitle: 'All Products',
-      path: '/products'
+      path: '/products',
+    });
+  });
+};
+
+exports.getProduct = (req, res, next) => {
+  const prodId = +req.params.productId;
+  // if (!prodId || prodId === NaN) return;
+  Product.findById(prodId, (product) => {
+    res.render('shop/product-detail', {
+      product,
+      pageTitle: product.title,
+      path: '/products',
     });
   });
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll(products => {
+  Product.fetchAll((products) => {
     res.render('shop/index', {
       prods: products,
       path: '/',
@@ -37,6 +49,6 @@ exports.getOrders = (req, res, next) => {
 exports.getCheckout = (req, res, next) => {
   res.render('shop/checkout', {
     path: '/checkout',
-    pageTitle: 'Checkout'
+    pageTitle: 'Checkout',
   });
 };
