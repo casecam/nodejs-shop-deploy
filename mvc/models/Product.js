@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const Cart = require('./cart');
 
 const p = path.join(
   path.dirname(require.main.filename),
@@ -19,20 +20,32 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
-  constructor(title, imageUrl, description, price) {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
-    this.price = price;
+    this.price = +price;
   }
 
   save() {
-    this.id = Math.random();
     getProductsFromFile((products) => {
-      products.push(this);
-      fs.writeFile(p, JSON.stringify(products), (err) => {
-        if (err) console.log('Write error', err);
-      });
+      if (this.id) {
+        const existingProductIndex = products.findIndex(
+          (product) => product.id === +this.id
+        );
+        const updatedProducts = [...products];
+        updatedProducts[existingProductIndex] = this;
+        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+          console.log('Update write Error', err);
+        });
+      } else {
+        this.id = Math.random();
+        products.push(this);
+        fs.writeFile(p, JSON.stringify(products), (err) => {
+          if (err) console.log('Post Write error', err);
+        });
+      }
     });
   }
 
@@ -42,8 +55,25 @@ module.exports = class Product {
 
   static findById(id, cb) {
     getProductsFromFile((products) => {
-      const product = products.find((p) => p.id === id);
+      const product = products.find((p) => p.id === +id);
       cb(product);
+    });
+  }
+
+  static deleteById(id) {
+    console.log('id', id)
+    getProductsFromFile((products) => {
+      console.log('products', products)
+      const productToDelete = products.find((product) => product.id === +id);
+      console.log('productToDelete', productToDelete)
+      const updatedProducts = products.filter(
+        (product) => product.id !== +id
+      );
+      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+        if (!err) {
+          Cart.deleteProduct(id, productToDelete.price)
+        }
+      });
     });
   }
 };
