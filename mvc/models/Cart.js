@@ -47,7 +47,7 @@ module.exports = class Cart {
         updatedCart.totalPrice - productPrice * productQty;
 
       fs.writeFile(p, JSON.stringify(updatedCart), (err) => {
-        console.log('Delete Error:', err);
+       if (err) console.log('Delete Error:', err);
       });
     });
   }
