@@ -11,7 +11,7 @@ module.exports = class Cart {
         cart = JSON.parse(fileContent);
       }
       const existingProductIndex = cart.products.findIndex(
-        (product) => product.id === id
+        (product) => product.id === +id
       );
       const existingProduct = cart.products[existingProductIndex];
       let updatedProduct;
@@ -26,7 +26,7 @@ module.exports = class Cart {
       }
       cart.totalPrice = cart.totalPrice + +productPrice;
       fs.writeFile(p, JSON.stringify(cart), (err) => {
-        console.log('Cart Error', err);
+        if (err) console.log('Cart Error', err);
       });
     });
   }
@@ -35,7 +35,10 @@ module.exports = class Cart {
     fs.readFile(p, (err, fileContent) => {
       if (err) return;
       const updatedCart = { ...JSON.parse(fileContent) };
-      const product = updatedCart.products.find((product) => product.id === +id);
+      const product = updatedCart.products.find(
+        (product) => product.id === +id
+      );
+      if (!product) return;
       const productQty = product.qty;
       updatedCart.products = updatedCart.products.filter(
         (product) => product.id !== +id
@@ -46,6 +49,17 @@ module.exports = class Cart {
       fs.writeFile(p, JSON.stringify(updatedCart), (err) => {
         console.log('Delete Error:', err);
       });
+    });
+  }
+
+  static getCart(cb) {
+    fs.readFile(p, (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err) {
+        cb(null);
+      } else {
+        cb(cart);
+      }
     });
   }
 };
