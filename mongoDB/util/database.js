@@ -3,17 +3,27 @@ const MongoClient = mongodb.MongoClient;
 const dotenv = require('dotenv')
 dotenv.config();
 
-const mongoConnect = callback => {
-  MongoClient.connect(
-    process.env.DB
-  )
-    .then(client => {
+let _db;
+
+const mongoConnect = (callback) => {
+  MongoClient.connect(process.env.DB)
+    .then((client) => {
       console.log('Connected!');
-      callback(client);
+      _db = client.db();
+      callback();
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
+      throw err;
     });
 };
 
-module.exports = mongoConnect;
+const getDb = () => {
+  if (_db) {
+    return _db;
+  }
+  throw 'No database found.';
+};
+
+exports.mongoConnect = mongoConnect;
+exports.getDb = getDb;
