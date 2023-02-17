@@ -51,8 +51,8 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req, res, next) => {
-  const { productId: prodId, title, price, imageUrl, description } = req.body
-  const product = new Product(title, price, description, imageUrl, prodId)
+  const { productId, title, price, imageUrl, description } = req.body
+  const product = new Product(title, price, description, imageUrl, productId)
   product
     .save()
     .then(result => {
