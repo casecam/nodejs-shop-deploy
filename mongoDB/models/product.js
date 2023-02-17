@@ -1,70 +1,24 @@
-const mongodb = require('mongodb')
-const getDb = require('../util/database').getDb;
+const mongoose = require('mongoose');
 
-const PRODUCTS = 'products'
+const Schema = mongoose.Schema;
 
-class Product {
-  constructor(title, price, imageUrl, description, id, userId) {
-    this.title = title;
-    this.price = price;
-    this.imageUrl = imageUrl;
-    this.description = description;
-    this._id = id ? new mongodb.ObjectId(id) : null;
-    this.userId = userId;
+const productSchema = new Schema({
+  title: {
+    type: String,
+    require: true
+  },
+  price: {
+    type: Number,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  imageUrl: {
+    type: String,
+    required: true
   }
+});
 
-  save() {
-    const db = getDb();
-    let dbOperation;
-    if (this._id) {
-      dbOperation = db
-        .collection(PRODUCTS)
-        .updateOne({ _id: this._id }, { $set: this })
-    } else {
-      dbOperation = db.collection(PRODUCTS).insertOne(this);
-    }
-    return dbOperation
-      .then(result => {
-        console.log('Success.');
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }
-
-  static fetchAll() {
-    const db = getDb();
-    return db
-      .collection(PRODUCTS)
-      .find()
-      .toArray()
-      .then(products => {
-        return products;
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }
-
-  static findById(id) {
-    const db = getDb();
-    return db
-      .collection(PRODUCTS)
-      .find({ _id: new mongodb.ObjectId(id) })
-      .next()
-      .then(product => {
-        return product;
-      }).catch(err => console.error(err))
-  }
-
-  static deleteById(id) {
-    const db = getDb();
-    return db
-      .collection(PRODUCTS)
-      .deleteOne({ _id: new mongodb.ObjectId(id) })
-      .then(result => console.log('Success.'))
-      .catch(err => console.error(err))
-  }
-}
-
-module.exports = Product;
+module.exports = mongoose.model('Product', productSchema)
