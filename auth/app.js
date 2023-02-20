@@ -35,19 +35,9 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  User.findById('63effc953117afd3dead20ef')
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((err) => console.log(err));
-});
-
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
 app.use(errorController.get404);
 
 mongoose
@@ -57,7 +47,7 @@ mongoose
       if (!user) {
         const user = new User({
           name: 'Arvo',
-          email: 'arvo@test123456.com',
+          email: 'arvo@arvoaudio.com',
           cart: {
             items: [],
           },
