@@ -33,15 +33,18 @@ app.use(
     secret: process.env.DB_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: store,
+    store,
   })
 );
 app.use(helmet());
 app.use(flash());
+
 app.use((req, res, next) => {
   if (!req.session.user) {
+    console.log('no user');
     return next();
   }
+  console.log('req.session', req.session)
   User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
