@@ -19,27 +19,42 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  User.findById('63f3eda67f8a4c3cf6e7ff7e')
+  const { email, password } = req.body;
+  User.findOne({ email })
     .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save((err) => {
-        console.error(err);
-        res.redirect('/');
-      });
+      if (!user) {
+        return res.redirect('/login');
+      }
+      bcrypt
+        .compare(password, user.password)
+        .then((doMatch) => {
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.error(err);
+              res.redirect('/');
+            });
+          }
+          res.redirect('/login');
+        })
+        .catch((err) => {
+          console.error(err);
+          res.redirect('/login');
+        });
     })
     .catch((err) => console.error(err));
 };
 
 exports.postSignup = (req, res, next) => {
   const { email, password } = req.body;
-  User.findOne({ email })
-    .then(async (userDoc) => {
-      if (userDoc) {
-        return res.redirect('/signup');
-      }
-      return await bcrypt.hash(password, 12);
-    })
+  User.findOne({ email }).then(async (userDoc) => {
+    if (userDoc) {
+      return res.redirect('/signup');
+    }
+  });
+  return bcrypt
+    .hash(password, 12)
     .then((hashedPassword) => {
       const user = new User({
         email,
