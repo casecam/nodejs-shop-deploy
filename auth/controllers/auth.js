@@ -1,13 +1,24 @@
 const bcrypt = require('bcrypt');
-
+const nodemailer = require('nodemailer');
+const sendgridTransport = require('nodemailer-sendgrid-transport');
 const User = require('../models/user');
+const dotenv = require('dotenv');
+dotenv.config();
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: process.env.SENDGRID_NODEMAILER,
+    },
+  })
+);
 
 exports.getLogin = (req, res, next) => {
-  let errorMessage = req.flash('error')
+  let errorMessage = req.flash('error');
   if (errorMessage.length) {
-    errorMessage = errorMessage[0]
+    errorMessage = errorMessage[0];
   } else {
-    errorMessage = null
+    errorMessage = null;
   }
   res.render('auth/login', {
     path: '/login',
@@ -80,9 +91,18 @@ exports.postSignup = (req, res, next) => {
     })
     .then((result) => {
       res.redirect('/login');
+      return transporter
+        .sendMail({
+          to: email,
+          from: process.env.EMAIL,
+          replyTo: process.env.EMAIL,
+          subject: 'Signup Success',
+          html: '<h1>Thank you for signing up.</h1>',
+        })
+        .catch((err) => console.error(err));
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
     });
 };
 
