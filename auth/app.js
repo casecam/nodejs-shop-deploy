@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-
+// const helmet = require('helmet');
 const errorController = require('./controllers/error');
 const User = require('./models/user');
 const dotenv = require('dotenv');
@@ -34,7 +34,7 @@ app.use(
     store: store,
   })
 );
-
+// app.use(helmet());
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
