@@ -5,6 +5,7 @@ const sendgridTransport = require('nodemailer-sendgrid-transport');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const dotenv = require('dotenv');
+const { handleError } = require('../util/handleError');
 dotenv.config();
 
 const transporter = nodemailer.createTransport(
@@ -108,7 +109,7 @@ exports.postLogin = (req, res, next) => {
           res.redirect('/login');
         });
     })
-    .catch((err) => console.error('postLogin User error =>', err));
+    .catch((err) => handleError(err));
 };
 
 exports.postSignup = (req, res, next) => {
@@ -144,7 +145,7 @@ exports.postSignup = (req, res, next) => {
         html: '<h1>Thank you for signing up.</h1>',
       });
     })
-    .catch((err) => console.error(err));
+    .catch((err) => handleError(err));
 };
 
 exports.postLogout = (req, res, next) => {
@@ -199,9 +200,7 @@ exports.postReset = (req, res, next) => {
           `
         });
       })
-      .catch(err => {
-        console.error('postReset =>', err);
-      });
+      .catch(err => handleError(err));
   });
 };
 
@@ -227,9 +226,7 @@ exports.getNewPassword = (req, res, next) => {
         passwordToken,
       });
     })
-    .catch((err) => {
-      console.error('getNewPassword =>', err);
-    });
+    .catch((err) => handleError(err));
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -253,7 +250,5 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect('/login');
     })
-    .catch((err) => {
-      console.error('postNewPassword =>', err);
-    });
+    .catch((err) => handleError(err));
 };
