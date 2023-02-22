@@ -109,7 +109,7 @@ exports.postLogin = (req, res, next) => {
           res.redirect('/login');
         });
     })
-    .catch((err) => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.postSignup = (req, res, next) => {
@@ -145,7 +145,7 @@ exports.postSignup = (req, res, next) => {
         html: '<h1>Thank you for signing up.</h1>',
       });
     })
-    .catch((err) => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.postLogout = (req, res, next) => {
@@ -200,8 +200,8 @@ exports.postReset = (req, res, next) => {
           `
         });
       })
-      .catch(err => handleError(err));
-  });
+      .catch((err) => handleError(err, next));
+    });
 };
 
 exports.getNewPassword = (req, res, next) => {
@@ -226,7 +226,7 @@ exports.getNewPassword = (req, res, next) => {
         passwordToken,
       });
     })
-    .catch((err) => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -250,5 +250,5 @@ exports.postNewPassword = (req, res, next) => {
     .then((result) => {
       res.redirect('/login');
     })
-    .catch((err) => handleError(err));
+    .catch((err) => handleError(err, next));
 };

@@ -11,7 +11,7 @@ exports.getProducts = (req, res, next) => {
         path: '/products',
       });
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.getProduct = (req, res, next) => {
@@ -24,7 +24,7 @@ exports.getProduct = (req, res, next) => {
         path: '/products',
       });
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.getIndex = (req, res, next) => {
@@ -36,7 +36,7 @@ exports.getIndex = (req, res, next) => {
         path: '/',
       });
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.getCart = (req, res, next) => {
@@ -51,7 +51,7 @@ exports.getCart = (req, res, next) => {
         products: products,
       });
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.postCart = (req, res, next) => {
@@ -73,7 +73,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .then(result => {
       res.redirect('/cart');
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.postOrder = (req, res, next) => {
@@ -99,7 +99,7 @@ exports.postOrder = (req, res, next) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
 
 exports.getOrders = (req, res, next) => {
@@ -111,5 +111,5 @@ exports.getOrders = (req, res, next) => {
         orders: orders,
       });
     })
-    .catch(err => handleError(err));
+    .catch((err) => handleError(err, next));
 };
