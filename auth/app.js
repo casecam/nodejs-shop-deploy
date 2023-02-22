@@ -41,7 +41,6 @@ app.use(flash());
 
 app.use((req, res, next) => {
   if (!req.session.user) {
-    console.log('no user');
     return next();
   }
   console.log('req.session', req.session)
