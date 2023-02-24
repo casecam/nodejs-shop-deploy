@@ -61,7 +61,9 @@ app.use(
     store,
   })
 );
+
 app.use(helmet());
+
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;

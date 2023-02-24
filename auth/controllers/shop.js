@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const PDFDocument = require('pdfkit');
-
+const dotenv = require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE);
 const Product = require('../models/product');
 const Order = require('../models/order');
 
@@ -111,31 +112,60 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .catch((err) => handleError(err, next));
 };
 
-exports.postOrder = (req, res, next) => {
+exports.getCheckout = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .execPopulate()
     .then((user) => {
-      const products = user.cart.items.map((i) => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      const products = user.cart.items;
+      let total = 0;
+      products.forEach((p) => {
+        total += p.quantity * p.productId.price;
       });
-      const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user,
-        },
-        products: products,
+      res.render('shop/checkout', {
+        path: '/checkout',
+        pageTitle: 'Checkout',
+        products,
+        totalSum: total,
       });
-      return order.save();
-    })
-    .then((result) => {
-      return req.user.clearCart();
-    })
-    .then(() => {
-      res.redirect('/orders');
     })
     .catch((err) => handleError(err, next));
 };
+
+// exports.postOrder = (req, res, next) => {
+//   const token = req.body.stripeToken;
+//   let totalSum = 0;
+//   req.user
+//     .populate('cart.items.productId')
+//     .execPopulate()
+//     .then((user) => {
+//       const products = user.cart.items.map((i) => {
+//         return { quantity: i.quantity, product: { ...i.productId._doc } };
+//       });
+//       const order = new Order({
+//         user: {
+//           email: req.user.email,
+//           userId: req.user,
+//         },
+//         products,
+//       });
+//       return order.save();
+//     })
+//     .then(result => {
+//       stripe.charges.create({
+//         amount: totalSum * 100,
+//         currency: 'usd',
+//         description: 'Demo Order',
+//         source: token,
+//         metadata: { order_id: result._id.toString() }
+//       });
+//       return req.user.clearCart();
+//     })
+//     .then(() => {
+//       res.redirect('/orders');
+//     })
+//     .catch((err) => handleError(err, next));
+// };
 
 exports.getOrders = (req, res, next) => {
   Order.find({ 'user.userId': req.user._id })
