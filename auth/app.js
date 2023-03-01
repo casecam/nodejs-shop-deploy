@@ -1,11 +1,16 @@
 const path = require('path');
+const fs = require('fs');
+const https = require('https');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const helmet = require('helmet');
-const flash = require('connect-flash')
+const compression = require('compression');
+const morgan = require('morgan');
+const flash = require('connect-flash');
 const multer = require('multer');
 
 const errorController = require('./controllers/error');
@@ -14,12 +19,16 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const MONGODB_URI = process.env.DB;
+const PORT = process.env.PORT;
 
 const app = express();
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions',
 });
+
+const privateKey = fs.readFileSync('server.key');
+const certificate = fs.readFileSync('server.cert');
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -49,6 +58,15 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, 'access.log'),
+  { flags: 'a' }
+);
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', { stream: accessLogStream }));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,8 +79,6 @@ app.use(
     store,
   })
 );
-
-app.use(helmet());
 
 app.use(flash());
 app.use((req, res, next) => {
@@ -103,7 +119,7 @@ mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) => {
     console.log('Connected');
-    app.listen(3000);
+    app.listen(PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
